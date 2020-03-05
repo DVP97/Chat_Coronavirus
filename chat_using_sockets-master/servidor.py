@@ -3,25 +3,27 @@ import threading
 import sys
 import pickle
 import os
-#modificar para que te solicite el puerto de conexion
-#mostrar numero de usuarios conectados
-#al conectar avisar por donde entra
 class Servidor():
+	n_users=0;
 	def __init__(self, host=socket.gethostname(), port=59989):
+		port = input('introduzca el puerto de conexion:\n')
 		self.clientes = [] #array 
 		self.sock = socket.socket()
 		self.sock.bind((str(host), int(port)))
 		self.sock.listen(20)
 		self.sock.setblocking(False)
-
+		hostname = socket.gethostname()
+		print( 'Tu direccion IP:'+socket.gethostbyname(hostname))
 		aceptar = threading.Thread(target=self.aceptarC)
 		procesar = threading.Thread(target=self.procesarC)
 		
 		aceptar.daemon = True
 		aceptar.start()
-
+		print('Hilo que acepta conexiones iniciado en modo DAEMON\n')
+		
 		procesar.daemon = True
 		procesar.start()
+		print('Hilo que procesa mensajes iniciado en modo DAEMON\n')
 
 		while True:
 			msg = input('SALIR = Q\n')
@@ -44,14 +46,14 @@ class Servidor():
 		while True:
 			try:
 				conn, addr = self.sock.accept()
-				print(f"\nConexion aceptada via {conn}\n")
+				hostname = socket.gethostname()
+				print(f"\nConexion aceptada via: {addr}\n")	
 				conn.setblocking(False)
 				self.clientes.append(conn)
 			except:
 				pass
 
 	def procesarC(self):
-		print("Procesamiento de mensajes iniciado")
 		while True:
 			if len(self.clientes) > 0:
 				for c in self.clientes:
@@ -59,6 +61,8 @@ class Servidor():
 						data = c.recv(32)
 						if data:
 							self.broadcast(data,c)
+							print('Numero de conexiones: ', len(self.clientes))
+							print(pickle.loads(data))
 					except:
 						pass
 

@@ -7,8 +7,11 @@ import os
 class Cliente():
 
 	def __init__(self, host=socket.gethostname(), port=59989):
+		host = input('introduzca la IP del server:\n')
+		port = input('introduzca el puerto de conexion:\n')
 		self.sock = socket.socket()
 		self.sock.connect((str(host), int(port)))
+
 		hilo_recv_mensaje = threading.Thread(target=self.recibir)
 		hilo_recv_mensaje.daemon = True #para que no se muera el proceso
 		hilo_recv_mensaje.start()
